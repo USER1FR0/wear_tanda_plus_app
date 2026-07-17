@@ -40,79 +40,96 @@ class DashboardScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       body: CircularSafeArea(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
+        child: Stack(
+          alignment: Alignment.center,
           children: [
-            // Icon/Avatar
-            Container(
-              width: 32,
-              height: 32,
-              decoration: const BoxDecoration(
-                color: Colors.blueGrey,
-                shape: BoxShape.circle,
-              ),
-              alignment: Alignment.center,
-              child: const Text(
-                'A',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
-            
-            // Context text
-            const Text(
-              'Tanda Familiar',
-              style: AppTextStyles.body,
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            const SizedBox(height: 8),
-            
-            // Urgent Status
-            Text(
-              mainText,
-              style: AppTextStyles.urgentStatus.copyWith(color: statusColor),
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-            const SizedBox(height: 4),
-            
-            // Amount or details
-            Text(
-              subText,
-              style: AppTextStyles.title,
-              textAlign: TextAlign.center,
-            ),
-            
-            const Spacer(),
-            
-            // Swipe hint
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'Desliza',
-                  style: AppTextStyles.body.copyWith(
-                    fontSize: 10,
-                    color: AppColors.secondaryText,
+            // Contenido principal centrado y escalable
+            Center(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 160),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      // Icon/Avatar
+                      Container(
+                        width: 26,
+                        height: 26,
+                        decoration: const BoxDecoration(
+                          color: Colors.blueGrey,
+                          shape: BoxShape.circle,
+                        ),
+                        alignment: Alignment.center,
+                        child: const Text(
+                          'A',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+
+                      // Context text
+                      const Text(
+                        'Tanda Familiar',
+                        style: AppTextStyles.body,
+                        textAlign: TextAlign.center,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+
+                      // Urgent Status
+                      Text(
+                        mainText,
+                        style: AppTextStyles.urgentStatus
+                            .copyWith(color: statusColor, fontSize: 18),
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 2),
+
+                      // Amount or details
+                      Text(
+                        subText,
+                        style: AppTextStyles.title.copyWith(fontSize: 18),
+                        textAlign: TextAlign.center,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(width: 4),
-                const Icon(
-                  Icons.arrow_forward_ios,
-                  color: AppColors.secondaryText,
-                  size: 10,
-                ),
-              ],
+              ),
             ),
-            const SizedBox(height: 16), // Espacio para los dots globales
+
+            // Swipe hint (posicionado al fondo, no compite por espacio)
+            Positioned(
+              bottom: 0,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Desliza',
+                    style: AppTextStyles.body.copyWith(
+                      fontSize: 9,
+                      color: AppColors.secondaryText,
+                    ),
+                  ),
+                  const SizedBox(width: 3),
+                  const Icon(
+                    Icons.arrow_forward_ios,
+                    color: AppColors.secondaryText,
+                    size: 9,
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),
