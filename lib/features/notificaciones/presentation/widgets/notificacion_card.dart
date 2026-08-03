@@ -1,13 +1,20 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/wear/wear_protocol.dart';
 import '../../../../shared/widgets/circular_safe_area.dart';
-import '../../data/mock_notificaciones.dart';
 
 class NotificacionCard extends StatefulWidget {
-  final NotificacionMock notificacion;
+  final TandaWearItem item;
+  final bool reportando;
+  final VoidCallback onReportar;
 
-  const NotificacionCard({super.key, required this.notificacion});
+  const NotificacionCard({
+    super.key,
+    required this.item,
+    required this.reportando,
+    required this.onReportar,
+  });
 
   @override
   State<NotificacionCard> createState() => _NotificacionCardState();
@@ -69,6 +76,16 @@ class _NotificacionCardState extends State<NotificacionCard>
     });
   }
 
+  /// El celular manda una fecha límite; aquí se traduce a algo legible en la
+  /// pantalla chica del reloj.
+  String _formatearFechaLimite(DateTime? fechaLimite) {
+    if (fechaLimite == null) return '';
+    final dias = fechaLimite.difference(DateTime.now()).inDays;
+    if (dias > 0) return 'vence en $dias día${dias == 1 ? '' : 's'}';
+    if (dias < 0) return 'venció hace ${-dias} día${-dias == 1 ? '' : 's'}';
+    return 'vence hoy';
+  }
+
   @override
   Widget build(BuildContext context) {
     Color accentColor;
@@ -76,33 +93,32 @@ class _NotificacionCardState extends State<NotificacionCard>
     String titulo;
     bool showCheckBtn = false;
 
-    switch (widget.notificacion.tipo) {
-      case TipoNotificacion.teTocaCobrar:
-        accentColor = AppColors.statusCollect;
-        iconData = Icons.emoji_events;
-        titulo = '¡Te toca cobrar!';
-        break;
-      case TipoNotificacion.pagoAtrasado:
+    switch (widget.item.tipo) {
+      case TandaWearTipo.pagoAtrasado:
         accentColor = AppColors.statusLate;
         iconData = Icons.warning_amber_rounded;
         titulo = 'Pago atrasado';
         showCheckBtn = true;
         break;
-      case TipoNotificacion.pagoProximo:
+      case TandaWearTipo.pagoProximo:
         accentColor = AppColors.statusPending;
         iconData = Icons.access_time;
         titulo = 'Pago próximo';
+        showCheckBtn = true;
         break;
-      case TipoNotificacion.pagoPendiente:
+      case TandaWearTipo.pagoPendiente:
         accentColor = Colors.blueGrey;
         iconData = Icons.calendar_today;
         titulo = 'Pago pendiente';
         showCheckBtn = true;
         break;
+      case TandaWearTipo.pagoReportado:
+        accentColor = AppColors.statusOk;
+        iconData = Icons.hourglass_top;
+        titulo = 'Ya reportado';
+        showCheckBtn = false;
+        break;
     }
-
-    final bool isCobrar =
-        widget.notificacion.tipo == TipoNotificacion.teTocaCobrar;
 
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0.0, end: 1.0),
@@ -143,37 +159,32 @@ class _NotificacionCardState extends State<NotificacionCard>
                         const SizedBox(height: 4),
                         Text(
                           titulo,
-                          style: isCobrar
-                              ? AppTextStyles.title.copyWith(
-                                  color: accentColor, fontSize: 15)
-                              : AppTextStyles.body.copyWith(
-                                  color: accentColor,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 13,
-                                ),
+                          style: AppTextStyles.body.copyWith(
+                            color: accentColor,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                          ),
                           textAlign: TextAlign.center,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          '\$${widget.notificacion.monto.toStringAsFixed(0)}',
-                          style: isCobrar
-                              ? AppTextStyles.title.copyWith(fontSize: 20)
-                              : AppTextStyles.title.copyWith(fontSize: 18),
+                          '\$${widget.item.monto.toStringAsFixed(0)}',
+                          style: AppTextStyles.title.copyWith(fontSize: 18),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          widget.notificacion.nombreTanda,
+                          widget.item.nombreTanda,
                           style: AppTextStyles.body.copyWith(fontSize: 10),
                           textAlign: TextAlign.center,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                         Text(
-                          widget.notificacion.tiempoInfo,
+                          _formatearFechaLimite(widget.item.fechaLimite),
                           style: AppTextStyles.body.copyWith(
                             fontSize: 10,
                             color: Colors.white70,
@@ -185,8 +196,15 @@ class _NotificacionCardState extends State<NotificacionCard>
                         if (showCheckBtn) ...[
                           const SizedBox(height: 6),
                           GestureDetector(
-                            onTap: () =>
-                                _showToast(context, 'Marcado como pagado'),
+                            onTap: widget.reportando
+                                ? null
+                                : () {
+                                    widget.onReportar();
+                                    _showToast(
+                                      context,
+                                      'Reportado, esperando confirmación',
+                                    );
+                                  },
                             child: Container(
                               padding: const EdgeInsets.all(5),
                               decoration: BoxDecoration(
@@ -195,8 +213,17 @@ class _NotificacionCardState extends State<NotificacionCard>
                                 border: Border.all(
                                     color: AppColors.statusOk, width: 1.5),
                               ),
-                              child: const Icon(Icons.check,
-                                  color: AppColors.statusOk, size: 14),
+                              child: widget.reportando
+                                  ? const SizedBox(
+                                      width: 14,
+                                      height: 14,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: AppColors.statusOk,
+                                      ),
+                                    )
+                                  : const Icon(Icons.check,
+                                      color: AppColors.statusOk, size: 14),
                             ),
                           ),
                         ],
