@@ -35,6 +35,11 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
 
+  # El reloj va a hablar directo con el backend, asi que necesita su propio
+  # cliente HTTP y donde guardar la sesion de forma segura.
+  dio: ^5.10.0
+  flutter_secure_storage: ^10.3.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
