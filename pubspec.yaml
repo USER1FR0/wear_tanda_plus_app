@@ -40,6 +40,9 @@ dependencies:
   dio: ^5.10.0
   flutter_secure_storage: ^10.3.1
 
+  # Para exponer los repositorios y los ChangeNotifier al arbol de widgets.
+  provider: ^6.1.5+1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
