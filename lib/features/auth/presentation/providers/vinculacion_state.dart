@@ -24,6 +24,7 @@ class VinculacionState extends ChangeNotifier {
     _cargando = true;
     _error = null;
     _codigo = null;
+    _vinculado = false;
     notifyListeners();
 
     try {
