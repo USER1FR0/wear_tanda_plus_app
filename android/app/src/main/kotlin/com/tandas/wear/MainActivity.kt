@@ -2,6 +2,7 @@ package com.tandas.wear
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.graphics.Rect
 import android.os.Build
 import android.os.Bundle
 import androidx.annotation.NonNull
@@ -36,6 +37,22 @@ class MainActivity : FlutterActivity(), MessageClient.OnMessageReceivedListener 
                 arrayOf(Manifest.permission.BLUETOOTH_CONNECT),
                 REQUEST_BLUETOOTH_CONNECT,
             )
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            excluirGestoDelSistemaDelBorde()
+        }
+    }
+
+    // Wear OS reserva el swipe desde el borde para su propio gesto de "salir/
+    // regresar" y le gana la prioridad al PageView de Flutter: sin esto,
+    // deslizar entre páginas de la app (p.ej. de la lista de pagos de vuelta
+    // al inicio) saca de la app al launcher del reloj en vez de solo cambiar
+    // de página.
+    private fun excluirGestoDelSistemaDelBorde() {
+        val decorView = window.decorView
+        decorView.addOnLayoutChangeListener { view, _, _, _, _, _, _, _, _ ->
+            view.systemGestureExclusionRects = listOf(Rect(0, 0, view.width, view.height))
         }
     }
 

@@ -7,6 +7,8 @@ import 'core/theme/app_colors.dart';
 import 'features/auth/domain/repositories/auth_repository.dart';
 import 'features/auth/presentation/providers/vinculacion_state.dart';
 import 'features/auth/presentation/screens/vinculacion_screen.dart';
+import 'features/cobros/domain/repositories/cobros_wear_repository.dart';
+import 'features/cobros/presentation/providers/cobros_wear_state.dart';
 import 'features/dashboard/presentation/screens/main_wear_screen.dart';
 import 'features/pagos/domain/repositories/pagos_wear_repository.dart';
 import 'features/pagos/presentation/providers/pagos_wear_state.dart';
@@ -18,6 +20,7 @@ void main() {
   final dioClient = DioClient(storageService);
   final authRepository = AuthRepository(dioClient, storageService);
   final pagosRepository = PagosWearRepository(dioClient, storageService);
+  final cobrosRepository = CobrosWearRepository(dioClient, storageService);
 
   runApp(
     MultiProvider(
@@ -25,6 +28,7 @@ void main() {
         Provider<SecureStorageService>(create: (_) => storageService),
         ChangeNotifierProvider(create: (_) => VinculacionState(authRepository)),
         ChangeNotifierProvider(create: (_) => PagosWearState(pagosRepository)),
+        ChangeNotifierProvider(create: (_) => CobrosWearState(cobrosRepository)),
       ],
       child: const AppWear(),
     ),
@@ -72,24 +76,20 @@ class _RaizScreenState extends State<RaizScreen> {
   }
 
   Future<void> _verificarSesion() async {
-    String? token;
-    try {
-      token = await context.read<SecureStorageService>().getToken();
-    } catch (_) {
-      // Si el keystore no responde, se trata como si no hubiera sesion y se
-      // pide vincular de nuevo, en vez de quedarse colgado en el spinner.
-      token = null;
-    }
+    final storage = context.read<SecureStorageService>();
+    final token = await storage.getToken();
     if (!mounted) return;
     setState(() => _tieneSesion = token != null);
     if (token != null) {
       context.read<PagosWearState>().iniciar();
+      context.read<CobrosWearState>().iniciar();
     }
   }
 
   void _onVinculado() {
     setState(() => _tieneSesion = true);
     context.read<PagosWearState>().iniciar();
+    context.read<CobrosWearState>().iniciar();
   }
 
   Future<void> _cerrarSesion() async {
@@ -97,6 +97,7 @@ class _RaizScreenState extends State<RaizScreen> {
     await storage.clearTokens();
     if (!mounted) return;
     context.read<PagosWearState>().detener();
+    context.read<CobrosWearState>().detener();
     setState(() => _tieneSesion = false);
   }
 

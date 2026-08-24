@@ -29,6 +29,7 @@ class AuthRepository {
           token: data['accessToken'] as String,
           refreshToken: data['refreshToken'] as String,
           userId: usuario['id'] as String,
+          userName: usuario['nombre'] as String?,
         );
         return true;
       }

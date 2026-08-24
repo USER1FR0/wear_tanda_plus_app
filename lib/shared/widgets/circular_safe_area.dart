@@ -7,7 +7,7 @@ class CircularSafeArea extends StatelessWidget {
   const CircularSafeArea({
     super.key,
     required this.child,
-    this.padding = 16.0,
+    this.padding = 28.0,
   });
 
   @override

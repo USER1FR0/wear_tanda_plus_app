@@ -5,9 +5,8 @@ class DioClient {
   late final Dio _dio;
   final SecureStorageService _storageService;
 
-  // 10.0.2.2 apunta al 'localhost' de la máquina host desde cualquier
-  // emulador Android (celular o reloj) — mismo backend que usa AppMovil.
-  static const String baseUrl = 'http://10.0.2.2:3000';
+  // API desplegada en Render — URL fija, no depende de la red local.
+  static const String baseUrl = 'https://tandas.onrender.com';
 
   DioClient(this._storageService) {
     _dio = Dio(

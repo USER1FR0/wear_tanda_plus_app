@@ -39,37 +39,58 @@ class _VinculacionScreenState extends State<VinculacionScreen> {
               });
             }
 
-            return Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.watch_outlined, color: AppColors.primaryText, size: 26),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Abre Tandas en tu celular y escribe:',
-                    style: AppTextStyles.body,
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 10),
-                  if (state.cargando && state.codigo == null)
-                    const CircularProgressIndicator(strokeWidth: 2, color: AppColors.primaryText)
-                  else if (state.error != null) ...[
+            final isError = state.error != null;
+
+            return SingleChildScrollView(
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.watch_outlined,
+                      color: AppColors.primaryText,
+                      size: isError ? 20 : 26,
+                    ),
+                    SizedBox(height: isError ? 4 : 8),
                     Text(
-                      state.error!,
-                      style: AppTextStyles.body.copyWith(color: AppColors.statusLate),
+                      'Abre Tandas en tu celular y escribe:',
+                      style: AppTextStyles.body.copyWith(
+                        fontSize: isError ? 11 : null,
+                      ),
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 6),
-                    TextButton(
-                      onPressed: () => context.read<VinculacionState>().iniciar(),
-                      child: const Text('Reintentar'),
-                    ),
-                  ] else if (state.codigo != null)
-                    Text(
-                      state.codigo!,
-                      style: AppTextStyles.title.copyWith(fontSize: 26, letterSpacing: 4),
-                    ),
-                ],
+                    SizedBox(height: isError ? 4 : 10),
+                    if (state.cargando && state.codigo == null)
+                      const CircularProgressIndicator(strokeWidth: 2, color: AppColors.primaryText)
+                    else if (isError) ...[
+                      Text(
+                        state.error!,
+                        style: AppTextStyles.body.copyWith(
+                          color: AppColors.statusLate,
+                          fontSize: 11,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 4),
+                      SizedBox(
+                        height: 32,
+                        child: TextButton(
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            minimumSize: Size.zero,
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
+                          onPressed: () => context.read<VinculacionState>().iniciar(),
+                          child: const Text('Reintentar', style: TextStyle(fontSize: 12)),
+                        ),
+                      ),
+                    ] else if (state.codigo != null)
+                      Text(
+                        state.codigo!,
+                        style: AppTextStyles.title.copyWith(fontSize: 26, letterSpacing: 4),
+                      ),
+                  ],
+                ),
               ),
             );
           },

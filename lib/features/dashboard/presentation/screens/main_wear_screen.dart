@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../pagos/presentation/providers/pagos_wear_state.dart';
-import '../../../notificaciones/presentation/widgets/notificacion_card.dart';
+import '../../../cobros/presentation/screens/cobros_lista_screen.dart';
+import '../../../notificaciones/presentation/screens/pagos_lista_screen.dart';
 import 'dashboard_screen.dart';
 
 class MainWearScreen extends StatefulWidget {
@@ -25,12 +24,19 @@ class _MainWearScreenState extends State<MainWearScreen> {
     super.dispose();
   }
 
+  void _irAPagina(int index) {
+    _pageController.animateToPage(
+      index,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOutCubic,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final state = context.watch<PagosWearState>();
-    final items = state.items;
-    // Total de páginas: 1 (Dashboard) + n (Notificaciones de pago)
-    final totalPages = 1 + items.length;
+    // Total de páginas: Dashboard + lista de pagos pendientes + lista de
+    // pagos recibidos.
+    const totalPages = 3;
     final currentIndex = _currentIndex >= totalPages ? totalPages - 1 : _currentIndex;
 
     return Scaffold(
@@ -46,14 +52,18 @@ class _MainWearScreenState extends State<MainWearScreen> {
             itemCount: totalPages,
             itemBuilder: (context, index) {
               if (index == 0) {
-                return DashboardScreen(onCerrarSesion: widget.onCerrarSesion);
+                return DashboardScreen(
+                  onCerrarSesion: widget.onCerrarSesion,
+                  onSiguiente: () => _irAPagina(1),
+                );
               }
-              final item = items[index - 1];
-              return NotificacionCard(
-                item: item,
-                reportando: state.estaReportando(item.pagoId),
-                onReportar: () => state.reportarPago(item.pagoId),
-              );
+              if (index == 1) {
+                return PagosListaScreen(
+                  onAnterior: () => _irAPagina(0),
+                  onSiguiente: () => _irAPagina(2),
+                );
+              }
+              return CobrosListaScreen(onAnterior: () => _irAPagina(1));
             },
           ),
 

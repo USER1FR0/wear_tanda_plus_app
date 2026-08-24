@@ -4,7 +4,7 @@
     <uses-permission android:name="android.permission.VIBRATE" />
 
     <!-- Necesarios para comunicarse con el celular emparejado (Wear OS Data
-         Layer API). -->
+         Layer API) una vez que se implemente esa parte. -->
     <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30" />
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
